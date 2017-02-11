@@ -315,7 +315,7 @@ static void tsdump(const char *path)
 		offset += (curr-buf);
 
 		if( (idx & 0x0f) == 0 ){
-			n = (int)(10000*offset/total);
+			n = (total != 0) ? (int)(10000*offset/total) : (int)(10000*offset);
 			fprintf(stderr, "\rprocessing: %2d.%02d%%", n/100, n%100);
 		}
 		idx += 1;
@@ -506,7 +506,7 @@ static void tsselect(const char *src, const char *dst, const unsigned char *pid)
 		offset += (curr-buf);
 
 		if( (idx & 0x0f) == 0 ){
-			n = (int)(10000*offset/total);
+			n = (total != 0) ? (int)(10000*offset/total) : (int)(10000*offset);
 			fprintf(stderr, "\rprocessing: %2d.%02d%%", n/100, n%100);
 		}
 		idx += 1;
