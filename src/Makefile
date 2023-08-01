@@ -19,4 +19,5 @@ clean:
 	rm $(OBJS) $(PROGRAM)
 
 install:$(PROGRAM)
+	mkdir -p $(DEST)
 	install -s $(PROGRAM) $(DEST)
