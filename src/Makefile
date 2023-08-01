@@ -4,7 +4,8 @@ CFLAGS = -O2 -D_XOPEN_SOURCE=600 -D_FILE_OFFSET_BITS=64
 LDFLAGS =
 OBJS = tsselect.o
 PROGRAM = tsselect
-DEST = /usr/local/bin
+PREFIX = /usr/local
+DEST = $(PREFIX)/bin
 
 $(PROGRAM): $(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $(OBJS)
@@ -19,4 +20,3 @@ clean:
 
 install:$(PROGRAM)
 	install -s $(PROGRAM) $(DEST)
-
