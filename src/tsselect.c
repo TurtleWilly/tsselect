@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include <unistd.h>
+#include <stdbool.h>
 
 #ifdef _WIN32
 #include <io.h>
@@ -526,9 +528,21 @@ LAST:
 	free(resync_report);
 
 	if(stat){
+		/* Support NO_COLOR, see: https://no-color.org
+		 */
+		bool interactive = isatty(fileno(stdout));
+		char *no_color = getenv("NO_COLOR");
+		
+		if (no_color != NULL && no_color[0] != '\0') {
+			interactive = false;
+		} 
+
 		for(i=0;i<8192;i++){
-			if(stat[i].total > 0){
-				printf("pid=0x%04x, total=%8"PRId64", d=%3"PRId64", e=%3"PRId64", scrambling=%"PRId64", offset=%"PRId64"\n", i, stat[i].total, stat[i].drop, stat[i].error, stat[i].scrambling, stat[i].first);
+			if(stat[i].total > 0) {
+				bool mark_red = (interactive && (stat[i].drop + stat[i].error + stat[i].scrambling) != 0);
+				printf("%spid=0x%04x, total=%10"PRId64", drops=%4"PRId64", biterrors=%2"PRId64", scrambling=%2"PRId64", offset=%10"PRId64"%s\n", 
+					(mark_red ? "\033[31m" : ""), i, stat[i].total, stat[i].drop, stat[i].error, stat[i].scrambling, stat[i].first, (mark_red ? "\033[0m" : "")
+				);
 			}
 		}
 		free(stat);
