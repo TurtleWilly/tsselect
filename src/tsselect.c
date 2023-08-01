@@ -13,6 +13,12 @@
 #define FOPEN_BINARY
 #endif
 
+#if 0 // ifdef __APPLE__
+#define _DARWIN_C_SOURCE
+#include <sys/stat.h>
+#include <fcntl.h>
+#endif
+
 /* report drops as with resync */
 #ifndef REPORT_DROP
 #define REPORT_DROP 1
@@ -243,6 +249,13 @@ static void tsdump(const char *path)
 		fseeko(fp, 0, SEEK_END);
 		total = ftello(fp);
 		fseeko(fp, 0, SEEK_SET);
+#endif
+#if 0 // #ifdef __APPLE__
+		{
+			int fn = fileno(fp);
+			(void)fcntl(fn, F_NOCACHE, 1);
+			(void)fcntl(fn, F_RDAHEAD, 1);
+		}
 #endif
 	}
 
