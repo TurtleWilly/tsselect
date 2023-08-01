@@ -16,3 +16,5 @@ tsselect for Linux, Windows, macOS, BSD, etc.
  - More descriptive labels
  - In case of issues (drops, errors) mark things in 'red' color (can be
    disabled with NO_COLOR environment variable)
+
+![tsselect in action](screenshot.png)
