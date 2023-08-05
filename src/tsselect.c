@@ -407,10 +407,10 @@ static void tsdump(const char *path)
 
 		if( (idx & 0x0f) == 0 ){
 			if(total <= 0){
-				fprintf(stderr, "\rprocessing: %5dM", (int)(offset/1024/1024));
+				fprintf(stderr, "\rProcessing: %5dM", (int)(offset/1024/1024));
 			}else{
 				n = (int)(10000*offset/total);
-				fprintf(stderr, "\rprocessing: %2d.%02d%%", n/100, n%100);
+				fprintf(stderr, "\rProcessing: %2d.%02d%%", n/100, n%100);
 			}
 		}
 		idx += 1;
@@ -531,7 +531,7 @@ static void tsdump(const char *path)
 		curr += unit_size;
 	}
 
-	fprintf(stderr, "\rprocessing: finish\n");
+	fprintf(stderr, "\rProcessing: finished\n");
 	fflush(stderr);
 
 LAST:
@@ -675,10 +675,10 @@ static void tsselect(const char *src, const char *dst, const unsigned char *pid)
 
 		if( (idx & 0x0f) == 0 ){
 			if(total <= 0){
-				fprintf(stderr, "\rprocessing: %5dM", (int)(offset/1024/1024));
+				fprintf(stderr, "\rProcessing: %5dM", (int)(offset/1024/1024));
 			}else{
 				n = (int)(10000*offset/total);
-				fprintf(stderr, "\rprocessing: %2d.%02d%%", n/100, n%100);
+				fprintf(stderr, "\rProcessing: %2d.%02d%%", n/100, n%100);
 			}
 		}
 		idx += 1;
@@ -718,7 +718,7 @@ static void tsselect(const char *src, const char *dst, const unsigned char *pid)
 		curr += unit_size;
 	}
 
-	fprintf(stderr, "\rprocessing: finish\n");
+	fprintf(stderr, "\rProcessing: finished\n");
 
 LAST:
 	if(dfp != NULL){
@@ -1020,7 +1020,7 @@ static void print_resync_report(RESYNC_REPORT *report, int count)
 	int m,n;
 	int year,month,date;
 
-	printf("total sync error: %d\n", count);
+	printf("Total Sync Errors: %d\n", count);
 
 	m = count;
 	if(report == NULL){
