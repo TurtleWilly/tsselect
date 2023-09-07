@@ -420,17 +420,17 @@ static void tsdump(const char *path)
 			memcpy(buf, curr, n);
 		}
 		
-		/* TODO: in some (rare) cases 'n' will have the exact size of 'buf', so fread would try to
+		/* TODO: in some (rare) cases 'n' will have the exact size of 'buf', so fread() would try to
 		 *       read 0 bytes, which makes the "m < 1" check fail and results in an early abort.
 		 *       Not a problem inside the transport stream, but the way tsselect does things, perhaps
-		 *       trigered by a ceetain combination of packets.
+		 *       triggered by a certain combination of packets.
 		 *       Interestingly some other programs (TsSplitter.exe) behave wrongly the very same
 		 *       way.  -- TurtleWilly
 		 *
 		 * TODO: Investigate this properly. A "Hot Fix" warning has been applied for now. -- TurtleWilly
 		 */
 		m = fread(buf+n, 1, sizeof(buf)-n, fp);
-		if(m < 1) {
+		if(m < 1){
 			fprintf(stderr, "\nSize of fread() buffer: %lu (buf: %lu, n: %d)\n", sizeof(buf)-n, sizeof(buf), n);  /* added some extra debug for now */
 			break;
 		}
@@ -542,7 +542,7 @@ static void tsdump(const char *path)
 		curr += unit_size;
 	}
 
-	fprintf(stderr, "\rProcessing: finished\n");	
+	fprintf(stderr, "\rProcessing: finished\n");
 	fflush(stderr);
 
 LAST:
@@ -551,7 +551,7 @@ LAST:
 	}
 	free(resync_report);
 
-	if(stat) {
+	if(stat){
 		/* Support NO_COLOR, see: https://no-color.org
 		 */
 		bool interactive = isatty(fileno(stdout));
