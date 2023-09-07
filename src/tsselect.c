@@ -123,7 +123,7 @@ static void show_tdt_or_tot(TS_HEADER *hdr, unsigned char *packet, int64_t pos);
 
 int main(int argc, char **argv)
 {
-	if(argc < 2){
+	if(argc < 2 || (argc == 2 && (strcmp("--help", argv[1]) == 0))){
 		show_usage();
 		exit(EXIT_FAILURE);
 	}
@@ -172,7 +172,7 @@ int main(int argc, char **argv)
 
 static void show_usage()
 {
-	fprintf(stderr, "tsselect - MPEG-2 TS stream(pid) selector ver. 0.1.8\n");
+	fprintf(stderr, "tsselect - MPEG-2 TS stream(pid) selector ver. r4\n");  /* TODO: temporarily switched to our GitHub versioning here */
 	fprintf(stderr, "usage: tsselect src.m2t|- [dst.m2t|- pid [more pid ..]]\n");
 	fprintf(stderr, "\n");
 	fprintf(stderr, "ex: dump \"src.m2t\" TS information\n");
@@ -419,8 +419,19 @@ static void tsdump(const char *path)
 		if(n > 0){
 			memcpy(buf, curr, n);
 		}
+		
+		/* TODO: in some (rare) cases 'n' will have the exact size of 'buf', so fread would try to
+		 *       read 0 bytes, which makes the "m < 1" check fail and results in an early abort.
+		 *       Not a problem inside the transport stream, but the way tsselect does things, perhaps
+		 *       trigered by a ceetain combination of packets.
+		 *       Interestingly some other programs (TsSplitter.exe) behave wrongly the very same
+		 *       way.  -- TurtleWilly
+		 *
+		 * TODO: Investigate this properly. A "Hot Fix" warning has been applied for now. -- TurtleWilly
+		 */
 		m = fread(buf+n, 1, sizeof(buf)-n, fp);
-		if(m < 1){
+		if(m < 1) {
+			fprintf(stderr, "\nSize of fread() buffer: %lu (buf: %lu, n: %d)\n", sizeof(buf)-n, sizeof(buf), n);  /* added some extra debug for now */
 			break;
 		}
 		n += m;
@@ -531,7 +542,7 @@ static void tsdump(const char *path)
 		curr += unit_size;
 	}
 
-	fprintf(stderr, "\rProcessing: finished\n");
+	fprintf(stderr, "\rProcessing: finished\n");	
 	fflush(stderr);
 
 LAST:
@@ -540,7 +551,7 @@ LAST:
 	}
 	free(resync_report);
 
-	if(stat){
+	if(stat) {
 		/* Support NO_COLOR, see: https://no-color.org
 		 */
 		bool interactive = isatty(fileno(stdout));
@@ -553,7 +564,7 @@ LAST:
 		for(i=0;i<8192;i++){
 			if(stat[i].total > 0) {
 				bool mark_red = (interactive && (stat[i].drop + stat[i].error + stat[i].scrambling) != 0);
-				printf("%spid=0x%04x, total=%10"PRId64", drops=%4"PRId64", biterrors=%2"PRId64", scrambling=%2"PRId64", offset=%10"PRId64"%s\n", 
+				printf("%spid=0x%04x, total=%10"PRId64", drops=%4"PRId64", errors=%2"PRId64", scrambling=%2"PRId64", offset=%10"PRId64"%s\n", 
 					(mark_red ? "\033[31m" : ""), i, stat[i].total, stat[i].drop, stat[i].error, stat[i].scrambling, stat[i].first, (mark_red ? "\033[0m" : "")
 				);
 			}
@@ -567,6 +578,21 @@ LAST:
 			fclose(fp);
 		}
 		fp = NULL;
+	}
+	
+	/* HOT FIX: sometimes aborts early w/o warning, so lets try to dump an error
+	 *          in case we didn't reach 100% of a known filesize. -- TurtleWilly
+	 *
+	 * TODO: Investigate why things really fail.
+	 * TODO: Handle NO_COLOR here too.
+	 */
+	if(total > 0) /* we know the input file size */
+	{
+		if ((offset+188) < total)
+		{
+			fprintf(stderr, "\033[1;31mWARNING:\033[22m something went wrong, aborted too early:\033[0m only \033[36m%lld\033[0m of \033[36m%lld Bytes\033[0m processed.\n", 
+				offset, total);
+		}
 	}
 }
 
@@ -1137,4 +1163,3 @@ static void show_tdt_or_tot(TS_HEADER *hdr, unsigned char *packet, int64_t pos)
 		fprintf(stdout, "TOT: [%02x:%02x:%02x] offset=%"PRId64"\n", p[2], p[3], p[4], pos);
 	}
 }
-
